@@ -1,4 +1,6 @@
-# UFO 🛸 Universal Fast Orderer
+![](./ufo.png)
+
+# UFO (Universal Fast Orderer)
 
 UFO is an in-memory mock consensus engine designed as a drop-in replacement for [CometBFT](https://github.com/cometbft/cometbft) to accelerate multi-chain simulation. When testing complex multi-chain interactions, the standard CometBFT consensus imposes significant overhead. UFO provides a fast alternative for testing Cosmos applications at sub-millisecond block times.
 
@@ -11,7 +13,7 @@ UFO is an in-memory mock consensus engine designed as a drop-in replacement for 
 
 ## Integration Modes
 
-UFO offers multiple integration modes for different use cases. The Osmosis node is provided here as a practical test case because it uses the Skip [Block SDK](https://github.com/skip-mev/block-sdk) which uses ABCI++ and it's a sovereign blockchain, making it easier to spin up for testing.
+UFO offers multiple integration modes for different use cases. The Osmosis node is provided here as a practical test case because it uses the [Block SDK](https://github.com/skip-mev/block-sdk) which uses ABCI++ and it's a sovereign blockchain, making it easier to spin up for testing.
 
 ### 1. Mock Cosmos SDK (Fauxmosis)
 
@@ -235,3 +237,5 @@ nix develop .#benchmark
 # or
 ./benchmark_assay/run_benchmark_env.sh
 ```
+
+### 🛸
