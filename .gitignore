@@ -74,6 +74,7 @@ Thumbs.db
 # Nix
 result
 result-*
+.direnv
 
 # Build directories
 /fauxmosis-comet
