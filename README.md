@@ -1,6 +1,4 @@
-![](./ufo.png)
-
-# UFO (Universal Fast Orderer)
+# 🛸 UFO (Universal Fast Orderer)
 
 UFO is an in-memory mock consensus engine designed as a drop-in replacement for [CometBFT](https://github.com/cometbft/cometbft) to accelerate multi-chain simulation. When testing complex multi-chain interactions, the standard CometBFT consensus imposes significant overhead. UFO provides a fast alternative for testing Cosmos applications at sub-millisecond block times.
 
@@ -238,4 +236,6 @@ nix develop .#benchmark
 ./benchmark_assay/run_benchmark_env.sh
 ```
 
-### 🛸
+<div align="center">
+  <img src="./ufo.png" alt="Description" style="max-width: 60%; margin: 1em; height: auto;">
+</div>
