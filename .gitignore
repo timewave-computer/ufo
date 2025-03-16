@@ -6,13 +6,14 @@
 *.dll
 *.so
 *.dylib
-/result/
 
 # Go test files
 *.test
 *.prof
 coverage.txt
 cover.out
+coverage.out
+coverage.html
 
 # Go modules
 /vendor/
@@ -75,9 +76,17 @@ Thumbs.db
 result
 result-*
 .direnv
+.pre-commit-config.yaml
 
-# Build directories
+# Binary files in root directory (built by direct go build)
 /fauxmosis-comet
 /fauxmosis-ufo
 /osmosis-ufo-bridged
-/osmosis-ufo-patched 
+/osmosis-ufo-patched
+/osmosis-comet
+/ufo
+
+# Nix store
+.nix-gcroots/
+.cache/
+.npm/ 

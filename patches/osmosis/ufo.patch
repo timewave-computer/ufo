@@ -1,0 +1,75 @@
+diff --git a/app/app.go b/app/app.go
+index 1234567..abcdef0 100644
+--- a/app/app.go
++++ b/app/app.go
+@@ -20,7 +20,7 @@ import (
+ 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+ 	sdk "github.com/cosmos/cosmos-sdk/types"
+ 	"github.com/cosmos/cosmos-sdk/types/module"
+-	"github.com/cometbft/cometbft/abci/types"
++	"github.com/timewave/ufo/src/adapter/abci/types"
+ 
+ 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+ 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+@@ -30,7 +30,7 @@ import (
+ 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+ 	"github.com/cosmos/cosmos-sdk/x/staking"
+ 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+-	"github.com/cometbft/cometbft/libs/log"
++	"github.com/timewave/ufo/src/adapter/log"
+ )
+ 
+ // Ensure OsmosisApp implements the sdk.App interface
+@@ -100,7 +100,7 @@ func NewOsmosisApp(
+ 	// Initialize with UFO adapter components
+ 	app.BaseApp.SetUFOAdapters()
+ 
+-	// Override CometBFT consensus with UFO
++	// Configure UFO consensus settings
+ 	app.SetConsensusParams(&types.ConsensusParams{
+ 		Block: &types.BlockParams{
+ 			MaxBytes: 21000000,
+@@ -110,7 +110,7 @@ func NewOsmosisApp(
+ 	})
+ 
+ 	// Use UFO validator selection logic
+-	app.SetValidatorSelectionMethod(types.UFOValidatorSelection)
++	app.SetValidatorSelectionMethod("ufo-round-robin")
+ 
+ 	return app
+ }
+diff --git a/cmd/osmosisd/main.go b/cmd/osmosisd/main.go
+index 9876543..0123456 100644
+--- a/cmd/osmosisd/main.go
++++ b/cmd/osmosisd/main.go
+@@ -10,8 +10,8 @@ import (
+ 	"github.com/cosmos/cosmos-sdk/server"
+ 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+ 	"github.com/cosmos/cosmos-sdk/x/crisis"
+-	"github.com/cometbft/cometbft/abci/server"
+-	cmtlog "github.com/cometbft/cometbft/libs/log"
++	"github.com/timewave/ufo/src/adapter/server"
++	ufoLog "github.com/timewave/ufo/src/adapter/log"
+ 
+ 	"github.com/osmosis-labs/osmosis/v28/app"
+ 	osmosisAppParams "github.com/osmosis-labs/osmosis/v28/app/params"
+@@ -31,7 +31,7 @@ func main() {
+ 
+ 	// Configure UFO as the consensus engine
+ 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+-		logger := cmtlog.NewTMLogger(cmtlog.NewSyncWriter(os.Stdout))
++		logger := ufoLog.NewTMLogger(ufoLog.NewSyncWriter(os.Stdout))
+ 		server.SetConsensusEngine("ufo")
+ 		server.SetBlockTime(100) // 100ms blocks for fast finality
+ 		return nil
+@@ -40,6 +40,9 @@ func main() {
+ 	// Create and execute the root command
+ 	rootCmd := &cobra.Command{
+ 		Use:   "osmosisd",
+-		Short: "Osmosis with CometBFT",
++		Short: "Osmosis with UFO",
++		Long:  "Osmosis with Universal Fast Orderer (UFO) - a lightweight and fast alternative to CometBFT",
+ 	}
++
++	// Use UFO RPC instead of CometBFT
++	server.UseUFOServer(rootCmd, app.NewOsmosisApp, osmosisAppParams.EncodingConfig) 

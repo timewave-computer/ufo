@@ -54,15 +54,16 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1742052622,
-        "narHash": "sha256-MTvD+6+WThuIcX9VQsKk3RVLIe2SpoHsqwhd6knp/oA=",
+        "lastModified": 1741851582,
+        "narHash": "sha256-cPfs8qMccim2RBgtKGF+x9IBCduRvd/N5F4nYpU0TVE=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1bb3ddca1ad2d514707e759fe60b264c7c760798",
+        "rev": "6607cf789e541e7873d40d3a8f7815ea92204f32",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -70,17 +71,34 @@
     "osmosis-patches": {
       "inputs": {
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "osmosis-src": "osmosis-src"
       },
       "locked": {
-        "lastModified": 1742047349,
-        "narHash": "sha256-9I8Y97WbIYxY9RcdBnxYUylcCqmP2TaD/TZbj/x0vvk=",
+        "lastModified": 1742104180,
+        "narHash": "sha256-IIEStgEll/guLnwTVA/UxlBydGemgt1NI9NbI9tiy1M=",
         "path": "/Users/hxrts/projects/timewave/ufo/patches/osmosis",
         "type": "path"
       },
       "original": {
         "path": "/Users/hxrts/projects/timewave/ufo/patches/osmosis",
         "type": "path"
+      }
+    },
+    "osmosis-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1741973399,
+        "narHash": "sha256-IzmmbkcP6Ln602YoGuk0Av4AngmBQYLq6P5zAIx5yjM=",
+        "owner": "osmosis-labs",
+        "repo": "osmosis",
+        "rev": "e282385e31e241beb218d29944e8bf899246de3a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "osmosis-labs",
+        "repo": "osmosis",
+        "type": "github"
       }
     },
     "root": {

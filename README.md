@@ -9,9 +9,36 @@ UFO is an in-memory mock consensus engine designed as a drop-in replacement for 
 - Support for ultra-low block times (down to sub-millisecond)
 - Resource efficient
 
+## Quick Start with Nix
+
+Get up and running quickly using Nix for a consistent environment and workflow:
+
+```bash
+
+# 1. Build all binaries
+nix run .#build-all
+
+# 2. Run all Go tests
+nix run .#test-all
+
+# 3. Run benchmarks
+nix run .#benchmark
+
+# 4. View results in Jupyter notebook
+nix run .#jupyter
+```
+
+These commands will build all necessary binaries, run the test suite, execute performance benchmarks, and start a Jupyter notebook for visualizing the results.
+
+If you want to start developing in the Nix environment you can run:
+
+```bash
+nix develop
+```
+
 ## Integration Modes
 
-UFO offers multiple integration modes for different use cases. The Osmosis node is provided here as a practical test case because it uses the [Block SDK](https://github.com/skip-mev/block-sdk) which uses ABCI++ and it's a sovereign blockchain, making it easier to spin up for testing.
+UFO offers multiple integration modes for different use cases. An [Osmosis](https://github.com/osmosis-labs/osmosis) node is provided here as a practical exmaple because it has the [Block SDK](https://github.com/skip-mev/block-sdk) which uses ABCI++ and because Osmosis a sovereign blockchain, making it slightly easier to integrate against.
 
 ### 1. Mock Cosmos SDK (Fauxmosis)
 
