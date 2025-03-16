@@ -104,16 +104,23 @@ Based on these benchmark results, we recommend:
 ## Visualizations
 
 ### TPS vs Block Time
-![TPS vs Block Time](./visualizations/tps_vs_blocktime.png)
+![TPS vs Block Time](./notebook_visualizations/tps_comparison.png)
 
 ### Latency vs Block Time
-![Latency vs Block Time](./visualizations/latency_vs_blocktime.png)
+![Latency vs Block Time](./notebook_visualizations/latency_comparison.png)
 
 ### Resource Usage
-![Combined Metrics](./visualizations/combined_metrics.png)
+![CPU Comparison](./notebook_visualizations/cpu_comparison.png)
+![Memory Comparison](./notebook_visualizations/memory_comparison.png)
 
 ### Performance Dashboard
-![Performance Dashboard](./visualizations/performance_dashboard.png)
+![Performance Dashboard](./notebook_visualizations/comparative_dashboard.png)
+
+### Efficiency Analysis
+![Efficiency Comparison](./notebook_visualizations/efficiency_comparison.png)
+
+### Block Time Heat Map
+![Block Time Heat Map](./notebook_visualizations/blocktime_heatmap.png)
 
 ## Conclusion
 

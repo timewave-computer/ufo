@@ -1,11 +1,6 @@
-# UFO - Universal Fast Orderer
+# UFO 🛸 Universal Fast Orderer
 
-UFO (Universal Fast Orderer) is a consensus engine designed to replace CometBFT.
-- [CometBFT GitHub](https://github.com/cometbft/cometbft)
-- [CometBFT Docs + Specs](https://docs.cometbft.com/v1.0/)
-
-UFO was developed to accelerate multi-chain testing. When testing complex multi-chain interactions, the standard CometBFT consensus imposes significant overhead. UFO provides a fast alternative for testing Cosmos applications at sub-millisecond block times.
-
+UFO is an in-memory mock consensus engine designed as a drop-in replacement for [CometBFT](https://github.com/cometbft/cometbft) to accelerate multi-chain simulation. When testing complex multi-chain interactions, the standard CometBFT consensus imposes significant overhead. UFO provides a fast alternative for testing Cosmos applications at sub-millisecond block times.
 
 ## Features
 
