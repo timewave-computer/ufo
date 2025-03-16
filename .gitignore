@@ -1,0 +1,82 @@
+# Go build and binaries
+/bin/
+/build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/result/
+
+# Go test files
+*.test
+*.prof
+coverage.txt
+cover.out
+
+# Go modules
+/vendor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+.python-version
+.env
+.venv
+venv/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Benchmark results - keep the main results.csv but ignore temporary data
+/benchmark_results/quick_comparison_*/
+/benchmark_results/test_*/
+/benchmark_results/temp_*/
+/benchmark_results/benchmark_run_*/
+/benchmark_results/benchmark.log
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Nix
+result
+result-*
+
+# Build directories
+/fauxmosis-comet
+/fauxmosis-ufo
+/osmosis-ufo-bridged
+/osmosis-ufo-patched 
