@@ -236,6 +236,4 @@ nix develop .#benchmark
 ./benchmark_assay/run_benchmark_env.sh
 ```
 
-<div align="center">
-  <img src="./ufo.png" alt="Description" style="max-width: 60%; margin: 1em; height: auto;">
-</div>
+![](./ufo.png)
