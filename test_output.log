@@ -1,0 +1,23 @@
+warning: Git tree '/Users/hxrts/projects/timewave/ufo' is dirty
+IBC Testing Environment
+Available commands:
+  build_test_binaries    - Build the IBC test binaries
+  run_ibc_tests [type]   - Run IBC tests with patched|bridged|all binary types
+Hermes version: hermes 1.12.0
+2025-03-17T15:07:04.543190Z  INFO ThreadId(01) running Hermes v1.12.0
+Using Hermes from Nix environment: hermes 1.12.0
+===== Running tests with PATCHED UFO binary =====
+Building osmosis-ufo-patched binary...
+Using osmosis-ufo-patched binary for IBC tests
+Running light client test with extended timeout...
+=== RUN   TestIBCLightClientUpdates
+    ibc_light_client_test.go:28: Running IBC Light Client test with binary type: patched
+    ibc_light_client_test.go:102: Starting chain1 with 4 validators and epoch length of 10 blocks...
+Starting test node with configuration:
+  Chain ID: light-client-chain-1
+  Binary Type: osmosis-ufo-patched
+  HomeDir: /tmp/nix-shell.gDbSoD/ufo-ibc-light-client-chain13084689706
+  RPC Address: tcp://localhost:26657
+  Epoch Length: 10
+  Validator Count: 4
+  Using binary at: /Users/hxrts/projects/timewave/ufo/bin/osmosis-ufo-patched

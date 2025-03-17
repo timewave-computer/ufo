@@ -1,5 +1,5 @@
 # devShells.nix - Development shells for UFO
-{ pkgs, python-viz-env, jupyter-app, build-osmosis-ufo-script }:
+{ pkgs, python-viz-env, jupyter-app, build-osmosis-ufo-script, hermesPackage ? null }:
 
 {
   default = pkgs.mkShell {
@@ -193,6 +193,108 @@
       echo "  run_tests              - Run tests with binaries from result"
       echo "  go test ./...          - Run all tests"
       echo "  cd tests && go test    - Run tests from tests directory"
+    '';
+    
+    allowNetworkAccess = true;
+  };
+  
+  # IBC test shell with our custom Hermes package
+  ibc = pkgs.mkShell {
+    buildInputs = with pkgs; [
+      go_1_22
+      gotools
+      jq
+      curl
+      gnused
+      coreutils
+    ] ++ (if hermesPackage != null then [ hermesPackage ] else []);
+    
+    shellHook = ''
+      # Set up the Go environment
+      export GOROOT="${pkgs.go_1_22}/share/go"
+      export PATH="$GOROOT/bin:$PATH"
+      export CGO_ENABLED=1
+      export GO111MODULE=on
+      export GOFLAGS="-modcacherw"
+      
+      # Function to build test binaries including all integration approaches
+      build_test_binaries() {
+        echo "Building test binaries for IBC testing..."
+        
+        # Create build directory
+        mkdir -p build
+        
+        # Build binaries for IBC testing
+        go build -o build/osmosis-ufo-patched ./cmd/osmosis-ufo-patched
+        go build -o build/osmosis-ufo-bridged ./cmd/osmosis-ufo-bridged
+        
+        # Create a symlink from result to build
+        rm -f result
+        ln -sf build result
+        
+        echo "IBC test binaries built successfully at: ./result/"
+        ls -la ./result/
+      }
+      
+      # Function to run IBC tests
+      run_ibc_tests() {
+        local binary_type=''${1:-"all"}
+        shift 2>/dev/null || true
+        
+        if [[ "''$binary_type" != "patched" && "''$binary_type" != "bridged" && "''$binary_type" != "all" ]]; then
+          echo "Usage: run_ibc_tests [patched|bridged|all] [test flags]"
+          echo "  patched - Use osmosis-ufo-patched binary"
+          echo "  bridged - Use osmosis-ufo-bridged binary"
+          echo "  all     - Run tests with both binaries"
+          return 1
+        fi
+        
+        # Ensure the binaries are built
+        if [ ! -d "result" ]; then
+          echo "Building binaries first..."
+          build_test_binaries
+        fi
+        
+        # Make sure the binaries are on PATH during tests
+        export PATH="''$(pwd)/result:''$PATH"
+        
+        # Set Hermes environment variables
+        if [ -x "''$(which hermes)" ]; then
+          export HERMES_BIN="''$(which hermes)"
+          echo "Using Hermes at: ''$HERMES_BIN"
+        else
+          echo "Warning: Hermes binary not found"
+        fi
+        
+        # Run the IBC tests
+        if [[ "''$binary_type" == "all" ]]; then
+          echo "Running tests with PATCHED binary..."
+          UFO_BINARY_TYPE=patched go test -v ./tests/ibc "''$@"
+          
+          echo -e "\n=====================================\n"
+          
+          echo "Running tests with BRIDGED binary..."
+          UFO_BINARY_TYPE=bridged go test -v ./tests/ibc "''$@"
+        else
+          echo "Running tests with ''$binary_type binary..."
+          UFO_BINARY_TYPE=''$binary_type go test -v ./tests/ibc "''$@"
+        fi
+      }
+      
+      export -f build_test_binaries
+      export -f run_ibc_tests
+      
+      echo "IBC Testing Environment"
+      echo "Available commands:"
+      echo "  build_test_binaries    - Build the IBC test binaries"
+      echo "  run_ibc_tests [type]   - Run IBC tests with patched|bridged|all binary types"
+      
+      if [ -x "''$(which hermes)" ]; then
+        echo "Hermes version: ''$(hermes version 2>/dev/null || echo 'Not available')"
+        export HERMES_BIN="''$(which hermes)"
+      else
+        echo "Warning: Hermes binary not found"
+      fi
     '';
     
     allowNetworkAccess = true;

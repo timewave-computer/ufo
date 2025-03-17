@@ -8,7 +8,7 @@ This document outlines the detailed implementation plan for the UFO (Universal F
 
 - [CometBFT ABCI Specification](https://docs.cometbft.com/main/spec/abci/)
 - [Hermes IBC Relayer Documentation](https://hermes.informal.systems/)
-- [Hermes Nix Configuration](https://github.com/informalsystems/cosmos.nix/blob/b7125841f14af672a4f656f5607f9cf8b8c67970/packages/hermes.nix#L3)
+- [Hermes Nix Configuration](https://github.com/informalsystems/cosmos.nix/blob/b7125841f14af672a4f656f5607f9cf8b8c67970/packages/hermes.nix)
 
 ## Implementation Timeline
 
@@ -468,3 +468,218 @@ This implementation plan provides a structured approach to comprehensively test 
 - Verify both error codes and error messages
 - Include recovery testing from error conditions
 - Implement concurrency testing where applicable
+
+# UFO Testing Implementation Backlog
+
+## Overview
+
+This section outlines the detailed implementation plan for the remaining test categories in the UFO (Universal Fast Orderer) project. Despite the infrastructure being set up with directories and Nix commands, several test directories remain empty:
+
+1. **Consensus Tests** (`tests/consensus/`)
+2. **IBC Tests** (`tests/ibc/`)
+3. **Integration Tests** (`tests/integration/`)
+4. **Stress Tests** (`tests/stress/`)
+
+This work plan details the tasks needed to implement comprehensive tests in each of these categories, ensuring UFO's compatibility, performance, and reliability.
+
+## Implementation Timeline
+
+The implementation is structured across 6 weeks:
+
+1. **Consensus Tests** (Week 1)
+2. **IBC Tests** (Weeks 2-3)
+3. **Integration Tests** (Weeks 4-5)
+4. **Stress Tests** (Week 6)
+
+## Phase 1: Consensus Tests (Week 1)
+
+### Day 1-2: Basic Consensus Tests
+1. Create test setup for a single validator node
+   - Implement test for block production
+   - Test block validation
+   - Verify block commit signatures
+2. Implement tests for consensus configuration parameters
+   - Test different block time settings
+   - Verify timeout parameters
+   - Test consensus voting periods
+
+### Day 3-4: Multi-Validator Consensus Tests
+1. Create test environment for multi-validator setup
+   - Implement 4-validator test network configuration
+   - Test validator rotation and update
+   - Verify voting power distribution
+2. Implement validator set update tests
+   - Test adding/removing validators
+   - Verify voting power changes
+   - Test threshold calculations
+
+### Day 5-7: Consensus Fault Tests
+1. Implement tests for consensus fault scenarios
+   - Test byzantine validator behaviors
+   - Simulate validator disconnection and reconnection
+   - Verify fork detection and resolution
+2. Create tests for consensus recovery
+   - Test recovery from network partitions
+   - Verify liveness guarantees
+   - Test safety guarantees under different failure scenarios
+
+## Phase 2: IBC Tests (Weeks 2-3)
+
+### Week 2: Basic IBC Tests
+
+#### Day 1-2: IBC Setup and Configuration
+1. Create base test environment for IBC testing
+   - Set up chain configurations for IBC
+   - Implement helper functions for IBC operations
+   - Configure relayer connection between chains
+2. Implement client creation and update tests
+   - Test creating light clients on both chains
+   - Verify client updates
+   - Test client freeze mechanism
+
+#### Day 3-5: Connection and Channel Tests
+1. Implement connection handshake tests
+   - Test connection initialization
+   - Verify connection confirmation
+   - Test connection versioning
+2. Create channel establishment tests
+   - Test channel initialization
+   - Verify channel confirmation
+   - Test different channel types (ordered/unordered)
+
+#### Day 6-7: Basic Packet Tests
+1. Implement packet relay tests
+   - Test sending packets between chains
+   - Verify packet reception and acknowledgement
+   - Test timeout packets
+
+### Week 3: Advanced IBC Tests
+
+#### Day 1-3: Token Transfer Tests
+1. Create IBC token transfer tests
+   - Test sending tokens from Chain A to Chain B
+   - Verify escrow mechanics
+   - Test denominations and conversion
+2. Implement multi-hop transfer tests
+   - Test transfers across multiple chains
+   - Verify packet forwarding
+   - Test denomination trace
+
+#### Day 4-7: IBC Error and Recovery Tests
+1. Implement tests for IBC error scenarios
+   - Test packet timeout
+   - Verify timeout handling and refunds
+   - Test connection misbehavior
+2. Create recovery mechanism tests
+   - Test channel closure and reopening
+   - Verify client update after long disconnection
+   - Test relayer recovery strategies
+
+## Phase 3: Integration Tests (Weeks 4-5)
+
+### Week 4: Basic Integration Tests
+
+#### Day 1-3: UFO-Osmosis Integration Tests
+1. Create basic Osmosis integration test environment
+   - Set up Osmosis with UFO consensus
+   - Configure test accounts and assets
+   - Implement helper functions for common operations
+2. Implement tests for Osmosis transactions with UFO
+   - Test basic token transfers
+   - Verify AMM pool operations
+   - Test staking operations
+
+#### Day 4-7: Enhanced Integration Tests
+1. Create tests for Osmosis-specific features
+   - Test concentrated liquidity pools
+   - Verify incentive mechanisms
+   - Test governance operations
+2. Implement cross-feature integration tests
+   - Test staking plus AMM interactions
+   - Verify governance affecting pools
+   - Test complex transaction sequences
+
+### Week 5: Advanced Integration Tests
+
+#### Day 1-3: Client Integration Tests
+1. Create tests for different client interactions
+   - Test REST API client compatibility
+   - Verify gRPC client functionality
+   - Test WebSocket subscriptions
+2. Implement multi-client simultaneous operation tests
+   - Test multiple clients interacting with the chain
+   - Verify consistent state views across clients
+   - Test high concurrency client operations
+
+#### Day 4-7: External System Integration Tests
+1. Create tests for external system integrations
+   - Test block explorer compatibility
+   - Verify wallet connectivity
+   - Test Cosmos SDK tool compatibility
+2. Implement cross-chain integration tests
+   - Test IBC operations from Osmosis+UFO to other chains
+   - Verify compatibility with standard CometBFT chains
+   - Test relayer operations between different consensus implementations
+
+## Phase 4: Stress Tests (Week 6)
+
+### Day 1-2: Basic Load Testing
+1. Create load test environment
+   - Implement transaction generator
+   - Configure monitoring and metrics collection
+   - Set up test parameters and benchmarks
+2. Implement sustained load tests
+   - Test with constant transaction rate
+   - Verify chain performance under load
+   - Measure transaction latency and throughput
+
+### Day 3-4: Performance Scaling Tests
+1. Create tests for different block times
+   - Test performance at different block intervals (1s, 100ms, 10ms, 1ms)
+   - Verify transaction processing capacity
+   - Measure resource utilization
+2. Implement validator scaling tests
+   - Test performance with different validator counts
+   - Verify consensus efficiency with more validators
+   - Measure communication overhead
+
+### Day 5-7: Stress Limit and Recovery Tests
+1. Create tests for system limits
+   - Test maximum sustainable transaction rate
+   - Verify behavior at and beyond capacity
+   - Measure recovery time after overload
+2. Implement resource constraint tests
+   - Test under memory constraints
+   - Verify performance with CPU limitations
+   - Test disk I/O bottleneck scenarios
+3. Create network degradation tests
+   - Test with simulated network latency
+   - Verify performance with packet loss
+   - Test bandwidth limitation scenarios
+
+## Expected Outputs
+
+Implementation of these tests will result in:
+
+1. Comprehensive test coverage across all key aspects of UFO functionality
+2. Validation of UFO's compatibility with the Cosmos ecosystem
+3. Performance benchmarks under various configurations
+4. Documentation of UFO's behavior in edge cases and failure scenarios
+5. A reliable test suite for ongoing development and refinement
+
+## Resources Required
+
+- Development environment with sufficient resources for multi-node testing
+- Access to benchmarking infrastructure for stress tests
+- Osmosis binaries for integration testing
+- Hermes IBC relayer for IBC testing
+
+## Success Criteria
+
+The implementation will be considered successful when:
+
+1. All test directories contain working, comprehensive tests
+2. All Nix test commands execute successfully
+3. Test coverage meets or exceeds 80% for critical code paths
+4. Performance benchmarks are documented and reproducible
+5. Integration with external systems is verified and stable

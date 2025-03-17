@@ -33,6 +33,7 @@
           inherit python-viz-env;
           inherit jupyter-app;
           inherit build-osmosis-ufo-script;
+          hermesPackage = hermesPackage;
         };
         
         # Import apps module and pass required dependencies
@@ -49,6 +50,54 @@
         test-apps-module = import ./nix/test-apps.nix {
           inherit pkgs;
           inherit self;
+        };
+        
+        # Add the hermesPackage definition to the flake outputs
+        hermesPackage = pkgs.rustPlatform.buildRustPackage rec {
+          pname = "hermes";
+          version = "1.12.0";
+          
+          src = pkgs.fetchFromGitHub {
+            owner = "informalsystems";
+            repo = "hermes";
+            rev = "v${version}";
+            sha256 = "sha256-zZMqqrHVkBtPf74K7Etf4142CnfDcWc1JHjdjq1G9I4=";
+          };
+          
+          # Using cargoLock instead of cargoSha256
+          cargoLock = {
+            lockFile = pkgs.fetchurl {
+              url = "https://raw.githubusercontent.com/informalsystems/hermes/v${version}/Cargo.lock";
+              sha256 = "sha256-ISPdaQvB1UuDhJtOyg8YQH9jSx9Cq3DQAbQWh61satA=";
+            };
+          };
+          
+          nativeBuildInputs = with pkgs; [ 
+            pkg-config 
+            rustPlatform.bindgenHook
+            protobuf  # Add protobuf compiler for namada_tx
+          ];
+          
+          buildInputs = with pkgs; [
+            openssl
+            libiconv
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+            pkgs.darwin.apple_sdk.frameworks.Security
+            pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+            pkgs.darwin.libobjc
+            pkgs.darwin.apple_sdk.frameworks.CoreFoundation
+            pkgs.darwin.apple_sdk.frameworks.CoreServices
+          ];
+          
+          # Additional environment variables for macOS builds
+          env = pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
+            OPENSSL_DIR = "${pkgs.openssl.dev}";
+            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+          };
+          
+          # Skip tests during build
+          doCheck = false;
         };
         
       in

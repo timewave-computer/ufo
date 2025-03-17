@@ -97,9 +97,9 @@ To build the bridged mode version:
 go build -o osmosis-ufo-bridged ./cmd/osmosis-ufo-bridged/main.go
 ```
 
-## Performance Testing
+## Performance Tests
 
-UFO includes a comprehensive performance testing suite that benchmarks all integration modes against each other.
+UFO includes a performance testing suite that benchmarks integration modes against each other.
 
 To run the full performance test suite with the default configurations:
 
@@ -189,7 +189,7 @@ For benchmarking individual nodes with specific parameters:
 ./benchmark_assay/benchmark_node.sh --binary-type fauxmosis-ufo --binary-path /path/to/fauxmosis-ufo --validators 1 --block-times 100,10,1 --tx-count 1000
 ```
 
-### Benchmarking Environment
+### Benchmark Environment
 
 For a dedicated benchmarking environment with all dependencies:
 
@@ -236,7 +236,7 @@ The benchmark suite allows direct comparison between all integration modes:
 ### Prerequisites
 
 - Go 1.22 or later
-- Nix (optional, for reproducible builds)
+- Nix (for reproducible builds)
 - Python with pandas and matplotlib (for performance visualization)
 
 ### Building
