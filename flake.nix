@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    osmosis-patches.url = "path:/Users/hxrts/projects/timewave/ufo/patches/osmosis";
+    osmosis-patches.url = "path:./patches/osmosis";
   };
 
   outputs = { self, nixpkgs, flake-utils, osmosis-patches }:
@@ -81,19 +81,34 @@
           buildInputs = with pkgs; [
             openssl
             libiconv
+            # System-specific dependencies
           ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+            # macOS specific dependencies
             pkgs.darwin.apple_sdk.frameworks.Security
             pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
             pkgs.darwin.libobjc
             pkgs.darwin.apple_sdk.frameworks.CoreFoundation
             pkgs.darwin.apple_sdk.frameworks.CoreServices
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            # Linux specific dependencies
+            pkgs.glibc
+            # Add x86 Linux specific dependencies
+            pkgs.libseccomp
+            pkgs.libffi
+            pkgs.zlib
           ];
           
-          # Additional environment variables for macOS builds
+          # Additional environment variables for platform-specific builds
           env = pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
             OPENSSL_DIR = "${pkgs.openssl.dev}";
             OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
             OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+          } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+            OPENSSL_DIR = "${pkgs.openssl.dev}";
+            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+            # Make sure pkg-config can find libraries on x86 Linux
+            PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig:${pkgs.libffi.dev}/lib/pkgconfig:${pkgs.zlib.dev}/lib/pkgconfig";
           };
           
           # Skip tests during build

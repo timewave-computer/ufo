@@ -157,29 +157,41 @@ func (c *HTTPClient) GetBalance(ctx context.Context, address, denom string) (str
 	return "0", nil
 }
 
-// GetNodeStatus gets the status of the node
+// GetNodeStatus retrieves the node status
 func (c *HTTPClient) GetNodeStatus(ctx context.Context) (map[string]interface{}, error) {
-	// This would query the node status
-	endpoint := "/status"
+	return c.get(ctx, "/status")
+}
 
-	var response map[string]interface{}
-	if err := c.Get(ctx, endpoint, &response); err != nil {
-		return nil, fmt.Errorf("failed to get node status: %w", err)
+// get performs a GET request to the specified path
+func (c *HTTPClient) get(ctx context.Context, path string) (map[string]interface{}, error) {
+	url := fmt.Sprintf("%s%s", c.baseURL, path)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// Mock response for testing
-	mockResponse := map[string]interface{}{
-		"node_info": map[string]interface{}{
-			"version": "0.1.0",
-		},
-		"sync_info": map[string]interface{}{
-			"latest_block_height": float64(100),
-			"latest_block_time":   time.Now().Format(time.RFC3339),
-			"catching_up":         false,
-		},
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	return mockResponse, nil
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	return result, nil
 }
 
 // SimulateByzantineVote simulates a Byzantine validator sending an invalid vote

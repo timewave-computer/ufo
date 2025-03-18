@@ -23,47 +23,57 @@
       build_binaries() {
         echo "Building UFO binaries..."
         
-        # Create build directory
-        mkdir -p build
+        # Use the central build script if it exists
+        if [ -f "./scripts/build_binaries.sh" ]; then
+          ./scripts/build_binaries.sh
+        else
+          # Create bin directory
+          mkdir -p bin
+          
+          # Build the core binaries
+          go build -o bin/fauxmosis-comet ./cmd/fauxmosis-comet
+          go build -o bin/fauxmosis-ufo ./cmd/fauxmosis-ufo
+          go build -o bin/ufo ./main.go
+          
+          # Create a symlink from result to bin to maintain the expected path
+          rm -f result
+          ln -sf bin result
+        fi
         
-        # Build the core binaries
-        go build -o build/fauxmosis-comet ./cmd/fauxmosis-comet
-        go build -o build/fauxmosis-ufo ./cmd/fauxmosis-ufo
-        go build -o build/ufo ./main.go
-        
-        # Create a symlink from result to build to maintain the expected path
-        rm -f result
-        ln -sf build result
-        
-        echo "UFO binaries built successfully at: ./result/"
-        ls -la ./result/
+        echo "UFO binaries built successfully at: ./bin/"
+        ls -la ./bin/
       }
       
       # Function to build all UFO binaries including all integration approaches
       build_all_binaries() {
         echo "Building all UFO binaries and integration approaches..."
         
-        # Create build directory
-        mkdir -p build
+        # Use the central build script if it exists
+        if [ -f "./scripts/build_binaries.sh" ]; then
+          ./scripts/build_binaries.sh
+        else
+          # Create bin directory
+          mkdir -p bin
+          
+          # Mock implementation binaries
+          echo "Building mock implementation binaries..."
+          go build -o bin/fauxmosis-comet ./cmd/fauxmosis-comet
+          go build -o bin/fauxmosis-ufo ./cmd/fauxmosis-ufo
+          go build -o bin/ufo ./main.go
+          
+          # Integration approach binaries
+          echo "Building integration approach binaries..."
+          go build -o bin/osmosis-comet ./cmd/osmosis-comet
+          go build -o bin/osmosis-ufo-patched ./cmd/osmosis-ufo-patched
+          go build -o bin/osmosis-ufo-bridged ./cmd/osmosis-ufo-bridged
+          
+          # Create a symlink from result to bin to maintain the expected path
+          rm -f result
+          ln -sf bin result
+        fi
         
-        # Mock implementation binaries
-        echo "Building mock implementation binaries..."
-        go build -o build/fauxmosis-comet ./cmd/fauxmosis-comet
-        go build -o build/fauxmosis-ufo ./cmd/fauxmosis-ufo
-        go build -o build/ufo ./main.go
-        
-        # Integration approach binaries
-        echo "Building integration approach binaries..."
-        go build -o build/osmosis-comet ./cmd/osmosis-comet
-        go build -o build/osmosis-ufo-patched ./cmd/osmosis-ufo-patched
-        go build -o build/osmosis-ufo-bridged ./cmd/osmosis-ufo-bridged
-        
-        # Create a symlink from result to build to maintain the expected path
-        rm -f result
-        ln -sf build result
-        
-        echo "All binaries built successfully at: ./result/"
-        ls -la ./result/
+        echo "All binaries built successfully at: ./bin/"
+        ls -la ./bin/
       }
       
       # Function to run tests with result binaries on PATH
@@ -221,19 +231,24 @@
       build_test_binaries() {
         echo "Building test binaries for IBC testing..."
         
-        # Create build directory
-        mkdir -p build
+        # Use the central build script if it exists
+        if [ -f "./scripts/build_binaries.sh" ]; then
+          ./scripts/build_binaries.sh
+        else
+          # Create bin directory
+          mkdir -p bin
+          
+          # Build binaries for IBC testing
+          go build -o bin/osmosis-ufo-patched ./cmd/osmosis-ufo-patched
+          go build -o bin/osmosis-ufo-bridged ./cmd/osmosis-ufo-bridged
+          
+          # Create a symlink from result to bin
+          rm -f result
+          ln -sf bin result
+        fi
         
-        # Build binaries for IBC testing
-        go build -o build/osmosis-ufo-patched ./cmd/osmosis-ufo-patched
-        go build -o build/osmosis-ufo-bridged ./cmd/osmosis-ufo-bridged
-        
-        # Create a symlink from result to build
-        rm -f result
-        ln -sf build result
-        
-        echo "IBC test binaries built successfully at: ./result/"
-        ls -la ./result/
+        echo "IBC test binaries built successfully at: ./bin/"
+        ls -la ./bin/
       }
       
       # Function to run IBC tests

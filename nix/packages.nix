@@ -32,6 +32,22 @@ let
       # Make sure the modules are properly synced
       go mod download
       go mod tidy
+      
+      # Platform-specific setup
+      ${if pkgs.stdenv.isDarwin then ''
+        # macOS specific setup
+        echo "Building on Darwin (macOS)"
+      '' else if pkgs.stdenv.isLinux then ''
+        # Linux specific setup
+        echo "Building on Linux"
+        # Set specific flags for x86 Linux
+        export CGO_CFLAGS="-I${pkgs.glibc.dev}/include"
+        export CGO_LDFLAGS="-L${pkgs.glibc.out}/lib"
+        # Add library paths to LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
+      '' else ''
+        echo "Building on unsupported platform"
+      ''}
     '';
     
     # Don't use subPackages, we'll build everything manually
@@ -80,7 +96,7 @@ let
       description = "Universal Fast Orderer - A lightweight alternative to CometBFT for testing Cosmos applications";
       homepage = "https://github.com/timewave/ufo";
       license = licenses.asl20;
-      platforms = platforms.unix;
+      platforms = with platforms; linux ++ darwin;
     };
   };
   
@@ -114,6 +130,22 @@ let
       # Make sure the modules are properly synced
       go mod download
       go mod tidy
+      
+      # Platform-specific setup
+      ${if pkgs.stdenv.isDarwin then ''
+        # macOS specific setup
+        echo "Building on Darwin (macOS)"
+      '' else if pkgs.stdenv.isLinux then ''
+        # Linux specific setup
+        echo "Building on Linux"
+        # Set specific flags for x86 Linux
+        export CGO_CFLAGS="-I${pkgs.glibc.dev}/include"
+        export CGO_LDFLAGS="-L${pkgs.glibc.out}/lib"
+        # Add library paths to LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
+      '' else ''
+        echo "Building on unsupported platform"
+      ''}
     '';
     
     # Don't use subPackages, we'll build everything manually
@@ -167,7 +199,7 @@ let
       description = "All UFO binaries including integration approaches";
       homepage = "https://github.com/timewave/ufo";
       license = licenses.asl20;
-      platforms = platforms.unix;
+      platforms = with platforms; linux ++ darwin;
     };
   };
 
@@ -198,6 +230,22 @@ let
       # Make sure the modules are properly synced
       go mod download
       go mod tidy
+      
+      # Platform-specific setup
+      ${if pkgs.stdenv.isDarwin then ''
+        # macOS specific setup
+        echo "Building test runner on Darwin (macOS)"
+      '' else if pkgs.stdenv.isLinux then ''
+        # Linux specific setup
+        echo "Building test runner on Linux"
+        # Set specific flags for x86 Linux
+        export CGO_CFLAGS="-I${pkgs.glibc.dev}/include"
+        export CGO_LDFLAGS="-L${pkgs.glibc.out}/lib"
+        # Add library paths to LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
+      '' else ''
+        echo "Building test runner on unsupported platform"
+      ''}
     '';
     
     # Don't use subPackages, we'll build manually
@@ -215,8 +263,6 @@ let
       
       # Build the test runner
       go build -o bin/run_tests ./tests/run_tests.go
-      
-      echo "Test runner built successfully!"
     '';
     
     # Skip the default install phase and use our own
@@ -227,21 +273,25 @@ let
       # Create output directories
       mkdir -p $out/bin
       
-      # Copy test runner
+      # Copy test runner binary to output directory
       cp bin/run_tests $out/bin/
       
-      # Copy all binaries from ufo-binaries to ensure they're available
-      cp ${ufo-binaries}/bin/* $out/bin/
-      
-      echo "Installation complete. Binaries and test runner available in $out/bin"
+      echo "Installation complete. Test runner available at $out/bin/run_tests"
     '';
     
-    # Disable tests during the build
+    # Disable tests during the build process
     doCheck = false;
+    
+    meta = with pkgs.lib; {
+      description = "Test runner for UFO";
+      homepage = "https://github.com/timewave/ufo";
+      license = licenses.asl20;
+      platforms = with platforms; linux ++ darwin;
+    };
   };
 in
 {
-  inherit ufo-binaries;
-  inherit all-binaries;
-  inherit ufo-test-runner;
+  ufo-binaries = ufo-binaries;
+  all-binaries = all-binaries;
+  ufo-test-runner = ufo-test-runner;
 } 

@@ -75,15 +75,14 @@
         "osmosis-src": "osmosis-src"
       },
       "locked": {
-        "lastModified": 1742104180,
-        "narHash": "sha256-IIEStgEll/guLnwTVA/UxlBydGemgt1NI9NbI9tiy1M=",
-        "path": "/Users/hxrts/projects/timewave/ufo/patches/osmosis",
+        "path": "./patches/osmosis",
         "type": "path"
       },
       "original": {
-        "path": "/Users/hxrts/projects/timewave/ufo/patches/osmosis",
+        "path": "./patches/osmosis",
         "type": "path"
-      }
+      },
+      "parent": []
     },
     "osmosis-src": {
       "flake": false,

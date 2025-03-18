@@ -90,3 +90,6 @@ result-*
 .nix-gcroots/
 .cache/
 .npm/ 
+
+# Test output
+test_output.log

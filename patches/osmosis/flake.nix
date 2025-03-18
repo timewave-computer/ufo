@@ -37,6 +37,22 @@
             
             buildPhase = ''
               export HOME=$(mktemp -d)
+              
+              # Platform-specific setup
+              ${if pkgs.stdenv.isDarwin then ''
+                # macOS specific setup
+                echo "Building Osmosis on Darwin (macOS)"
+              '' else if pkgs.stdenv.isLinux then ''
+                # Linux specific setup
+                echo "Building Osmosis on Linux (x86)"
+                export CGO_ENABLED=1
+                export CGO_CFLAGS="-I${pkgs.glibc.dev}/include"
+                export CGO_LDFLAGS="-L${pkgs.glibc.out}/lib"
+                export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
+              '' else ''
+                echo "Building Osmosis on unsupported platform"
+              ''}
+              
               go build -o osmosis-ufo ./cmd/osmosisd
             '';
             
@@ -44,6 +60,13 @@
               mkdir -p $out/bin
               cp osmosis-ufo $out/bin/
             '';
+            
+            meta = with pkgs.lib; {
+              description = "Osmosis with UFO integration patches";
+              homepage = "https://github.com/osmosis-labs/osmosis";
+              license = licenses.asl20;
+              platforms = with platforms; linux ++ darwin;
+            };
           };
         };
         
@@ -51,7 +74,30 @@
           buildInputs = [
             pkgs.go_1_22
             pkgs.git
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            # Linux specific dependencies
+            pkgs.glibc.dev
           ];
+          
+          shellHook = ''
+            export GOROOT="${pkgs.go_1_22}/share/go"
+            export PATH="$GOROOT/bin:$PATH"
+            export CGO_ENABLED=1
+            
+            # Platform-specific setup
+            ${if pkgs.stdenv.isDarwin then ''
+              # macOS specific setup
+              echo "Osmosis dev shell on Darwin (macOS)"
+            '' else if pkgs.stdenv.isLinux then ''
+              # Linux specific setup
+              echo "Osmosis dev shell on Linux (x86)"
+              export CGO_CFLAGS="-I${pkgs.glibc.dev}/include"
+              export CGO_LDFLAGS="-L${pkgs.glibc.out}/lib"
+              export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH"
+            '' else ''
+              echo "Osmosis dev shell on unsupported platform"
+            ''}
+          '';
         };
       }
     );

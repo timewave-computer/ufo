@@ -32,10 +32,31 @@
           ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
             pkgs.darwin.apple_sdk.frameworks.Security
             pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            # Linux specific dependencies
+            pkgs.glibc
           ];
+          
+          # Environment variables for platform-specific builds
+          env = pkgs.lib.optionalAttrs pkgs.stdenv.isDarwin {
+            OPENSSL_DIR = "${pkgs.openssl.dev}";
+            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+          } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+            OPENSSL_DIR = "${pkgs.openssl.dev}";
+            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+          };
           
           # Skip tests during build
           doCheck = false;
+          
+          meta = with pkgs.lib; {
+            description = "Implementation of an IBC relayer for the Cosmos ecosystem";
+            homepage = "https://hermes.informal.systems";
+            license = licenses.asl20;
+            platforms = with platforms; linux ++ darwin;
+          };
         };
         
       in {
@@ -49,6 +70,20 @@
             hermes
             pkgs.go
           ];
+          
+          shellHook = ''
+            echo "Hermes IBC Relayer Development Environment"
+            echo "Hermes version: $(hermes --version 2>/dev/null || echo 'Not available')"
+            
+            # Platform-specific setup
+            ${if pkgs.stdenv.isDarwin then ''
+              echo "Running on Darwin (macOS)"
+            '' else if pkgs.stdenv.isLinux then ''
+              echo "Running on Linux"
+            '' else ''
+              echo "Running on unsupported platform"
+            ''}
+          '';
         };
       }
     );

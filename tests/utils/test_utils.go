@@ -366,12 +366,10 @@ func SetupTestNode(ctx context.Context, config TestConfig) (*TestNode, error) {
 
 	// Add epoch length configuration if specified
 	if config.EpochLength > 0 {
-		// Use the proper Osmosis epoch configuration flag
-		startArgs = append(startArgs, "--epoch-blocks", fmt.Sprintf("%d", config.EpochLength))
-		// Keep the generic flag as well for compatibility
-		startArgs = append(startArgs, "--epoch-length", fmt.Sprintf("%d", config.EpochLength))
+		// Only add epoch configuration in the genesis and app.toml files
+		// Do not pass epoch-related flags to the start command as they might not be recognized
 
-		// Also create/modify app.toml with the epoch settings
+		// Create/modify app.toml with the epoch settings
 		appConfigPath := filepath.Join(config.HomeDir, "config", "app.toml")
 		err := configureEpochsInAppConfig(appConfigPath, config.EpochLength)
 		if err != nil {
@@ -434,12 +432,33 @@ func StartTestNode(ctx context.Context, config TestConfig) (*TestNode, error) {
 	fmt.Printf("  Epoch Length: %d\n", config.EpochLength)
 	fmt.Printf("  Validator Count: %d\n", config.ValidatorCount)
 
+	// Check if UFO_BIN environment variable is set
+	if ufoBin := os.Getenv("UFO_BIN"); ufoBin != "" {
+		fmt.Printf("  UFO_BIN environment variable set to: %s\n", ufoBin)
+		// Ensure it's executable
+		if err := os.Chmod(ufoBin, 0755); err != nil {
+			fmt.Printf("  Warning: Failed to set executable permissions on binary: %v\n", err)
+		}
+	}
+
 	// Check if the binary exists
 	binaryPath, err := GetBinaryPath(config.BinaryType)
 	if err != nil {
+		fmt.Printf("  Error: failed to find binary for %s: %v\n", config.BinaryType, err)
 		return nil, fmt.Errorf("binary for %s not found: %w", config.BinaryType, err)
 	}
 	fmt.Printf("  Using binary at: %s\n", binaryPath)
+
+	// Verify the binary exists and is executable
+	if _, err := os.Stat(binaryPath); err != nil {
+		fmt.Printf("  Error: binary does not exist at %s: %v\n", binaryPath, err)
+		return nil, fmt.Errorf("binary does not exist at %s: %w", binaryPath, err)
+	}
+
+	// Ensure the binary is executable
+	if err := os.Chmod(binaryPath, 0755); err != nil {
+		fmt.Printf("  Warning: Failed to set executable permissions on binary: %v\n", err)
+	}
 
 	// Set up the node
 	node, err := SetupTestNode(ctx, config)
@@ -466,7 +485,19 @@ func StartTestNode(ctx context.Context, config TestConfig) (*TestNode, error) {
 
 // GetBinaryPath returns the path to the binary for the specified type
 func GetBinaryPath(binaryType BinaryType) (string, error) {
-	// First, check if the binary is available in the PATH
+	// First check if UFO_BIN environment variable is set
+	if ufoBin := os.Getenv("UFO_BIN"); ufoBin != "" {
+		if _, err := os.Stat(ufoBin); err == nil {
+			// Ensure the binary is executable
+			if err := os.Chmod(ufoBin, 0755); err != nil {
+				fmt.Printf("Warning: Failed to set executable permissions on binary: %v\n", err)
+			}
+			return ufoBin, nil
+		}
+		fmt.Printf("Warning: UFO_BIN is set to %s but file does not exist\n", ufoBin)
+	}
+
+	// Check if the binary is available in the PATH
 	path, err := exec.LookPath(string(binaryType))
 	if err == nil {
 		return path, nil
@@ -476,18 +507,24 @@ func GetBinaryPath(binaryType BinaryType) (string, error) {
 	// First, get the project root
 	projectRoot := getProjectRoot()
 
-	// Define possible locations
+	// Define possible locations in priority order
 	possibleLocations := []string{
+		// Standard bin directory (preferred location)
 		filepath.Join(projectRoot, "bin", string(binaryType)),
+		// For backward compatibility
+		filepath.Join(projectRoot, "result", string(binaryType)),
 		filepath.Join(projectRoot, "build", string(binaryType)),
 		filepath.Join(projectRoot, string(binaryType)),
 		filepath.Join(projectRoot, "cmd", string(binaryType), string(binaryType)),
-		filepath.Join(projectRoot, "tests", "bin", string(binaryType)),
 	}
 
 	// Check each location
 	for _, location := range possibleLocations {
 		if _, err := os.Stat(location); err == nil {
+			// Ensure the binary is executable
+			if err := os.Chmod(location, 0755); err != nil {
+				fmt.Printf("Warning: Failed to set executable permissions on binary: %v\n", err)
+			}
 			return location, nil
 		}
 	}
@@ -499,6 +536,10 @@ func GetBinaryPath(binaryType BinaryType) (string, error) {
 			for _, location := range possibleLocations {
 				modLocation := strings.Replace(location, string(binaryType), part, 1)
 				if _, err := os.Stat(modLocation); err == nil {
+					// Ensure the binary is executable
+					if err := os.Chmod(modLocation, 0755); err != nil {
+						fmt.Printf("Warning: Failed to set executable permissions on binary: %v\n", err)
+					}
 					return modLocation, nil
 				}
 			}
@@ -514,41 +555,42 @@ func GetBinaryPath(binaryType BinaryType) (string, error) {
 	return "", fmt.Errorf("binary not found: %s", binaryType)
 }
 
-// getProjectRoot attempts to find the root directory of the project
+// getProjectRoot returns the path to the project root.
 func getProjectRoot() string {
-	// First try to use git to find the repository root
-	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
-	output, err := cmd.Output()
-	if err == nil {
-		return strings.TrimSpace(string(output))
-	}
-
-	// If git command fails, try to use the working directory
 	dir, err := os.Getwd()
 	if err != nil {
-		return "."
+		panic(fmt.Sprintf("failed to get working directory: %v", err))
+	}
+
+	// Check if we're in the project root
+	if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+		return dir
 	}
 
 	// Check if we're in a subdirectory of the project
 	for {
-		// Check if this directory contains tests/bin or bin
-		if _, err := os.Stat(filepath.Join(dir, "tests", "bin")); err == nil {
-			return dir
-		}
+		// Check if this directory contains bin, which is the standard binary directory
 		if _, err := os.Stat(filepath.Join(dir, "bin")); err == nil {
 			return dir
 		}
 
-		// Check if we've reached the root directory
+		// Check for go.mod as a fallback
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir
+		}
+
+		// Go up one directory
 		parent := filepath.Dir(dir)
 		if parent == dir {
+			// We've reached the root of the filesystem
 			break
 		}
 		dir = parent
 	}
 
-	// If all else fails, return the current directory
-	return "."
+	// If we can't find the project root, just use the current directory
+	dir, _ = os.Getwd()
+	return dir
 }
 
 // TestChain represents a test chain for IBC testing
@@ -1078,13 +1120,13 @@ func configureEpochsInGenesis(genesisPath string, epochLength int) error {
 		genesis["app_state"] = appState
 	}
 
-	// Configure the epochs module
+	// Configure the epochs module - use the proper structure expected by Osmosis
 	epochsConfig := map[string]interface{}{
 		"epochs": []map[string]interface{}{
 			{
 				"identifier":                 "minute",
 				"start_time":                 "0001-01-01T00:00:00Z",
-				"duration":                   fmt.Sprintf("%ds", epochLength*1), // Each block is ~1s
+				"duration":                   fmt.Sprintf("%ds", epochLength*1), // Short epoch for testing
 				"current_epoch":              float64(0),
 				"current_epoch_start_time":   "0001-01-01T00:00:00Z",
 				"epoch_counting_started":     false,
@@ -1093,7 +1135,7 @@ func configureEpochsInGenesis(genesisPath string, epochLength int) error {
 			{
 				"identifier":                 "hour",
 				"start_time":                 "0001-01-01T00:00:00Z",
-				"duration":                   fmt.Sprintf("%ds", epochLength*60), // 60 minutes
+				"duration":                   fmt.Sprintf("%ds", epochLength*10), // Longer epoch
 				"current_epoch":              float64(0),
 				"current_epoch_start_time":   "0001-01-01T00:00:00Z",
 				"epoch_counting_started":     false,
@@ -1102,7 +1144,7 @@ func configureEpochsInGenesis(genesisPath string, epochLength int) error {
 			{
 				"identifier":                 "day",
 				"start_time":                 "0001-01-01T00:00:00Z",
-				"duration":                   fmt.Sprintf("%ds", epochLength*60*24), // 24 hours
+				"duration":                   fmt.Sprintf("%ds", epochLength*20), // Even longer epoch
 				"current_epoch":              float64(0),
 				"current_epoch_start_time":   "0001-01-01T00:00:00Z",
 				"epoch_counting_started":     false,
@@ -1111,7 +1153,7 @@ func configureEpochsInGenesis(genesisPath string, epochLength int) error {
 			{
 				"identifier":                 "week",
 				"start_time":                 "0001-01-01T00:00:00Z",
-				"duration":                   fmt.Sprintf("%ds", epochLength*60*24*7), // 7 days
+				"duration":                   fmt.Sprintf("%ds", epochLength*30), // Longest epoch
 				"current_epoch":              float64(0),
 				"current_epoch_start_time":   "0001-01-01T00:00:00Z",
 				"epoch_counting_started":     false,
@@ -1122,6 +1164,11 @@ func configureEpochsInGenesis(genesisPath string, epochLength int) error {
 
 	// Update the app_state with the epochs configuration
 	appState["epochs"] = epochsConfig
+
+	// Also configure the x/epochs module parameters if it exists
+	if _, exists := appState["epochs"]; exists {
+		fmt.Printf("Configured epochs module in genesis.json\n")
+	}
 
 	// Write the updated genesis back to the file
 	updatedContent, err := json.MarshalIndent(genesis, "", "  ")
