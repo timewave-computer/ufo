@@ -24,7 +24,7 @@ let
     
     # Fix the Go environment
     preBuild = ''
-      export GOROOT="${pkgs.go_1_22}/share/go"
+      export GOROOT="${pkgs.go_1_23}/share/go"
       export PATH="$GOROOT/bin:$PATH"
       export CGO_ENABLED=1
       export GOPROXY="https://proxy.golang.org,direct"
@@ -122,7 +122,7 @@ let
     
     # Fix the Go environment and build all binaries
     preBuild = ''
-      export GOROOT="${pkgs.go_1_22}/share/go"
+      export GOROOT="${pkgs.go_1_23}/share/go"
       export PATH="$GOROOT/bin:$PATH"
       export CGO_ENABLED=1
       export GOPROXY="https://proxy.golang.org,direct"
@@ -222,7 +222,7 @@ let
     
     # Fix the Go environment
     preBuild = ''
-      export GOROOT="${pkgs.go_1_22}/share/go"
+      export GOROOT="${pkgs.go_1_23}/share/go"
       export PATH="$GOROOT/bin:$PATH"
       export CGO_ENABLED=1
       export GOPROXY="https://proxy.golang.org,direct"

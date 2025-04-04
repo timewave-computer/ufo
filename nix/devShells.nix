@@ -4,7 +4,7 @@
 {
   default = pkgs.mkShell {
     buildInputs = with pkgs; [
-      go_1_22
+      go_1_23
       gopls
       golangci-lint
       delve
@@ -14,7 +14,7 @@
     
     shellHook = ''
       # Set up the Go environment
-      export GOROOT="${pkgs.go_1_22}/share/go"
+      export GOROOT="${pkgs.go_1_23}/share/go"
       export PATH="$GOROOT/bin:$PATH"
       export CGO_ENABLED=1
       export GO111MODULE=on
@@ -115,13 +115,13 @@
   # Test shell for running benchmarks and tests
   test = pkgs.mkShell {
     buildInputs = with pkgs; [
-      go_1_22
+      go_1_23
       gotools
     ];
     
     shellHook = ''
       # Set up the Go environment
-      export GOROOT="${pkgs.go_1_22}/share/go"
+      export GOROOT="${pkgs.go_1_23}/share/go"
       export PATH="$GOROOT/bin:$PATH"
       export CGO_ENABLED=1
       export GO111MODULE=on
@@ -211,7 +211,7 @@
   # IBC test shell with our custom Hermes package
   ibc = pkgs.mkShell {
     buildInputs = with pkgs; [
-      go_1_22
+      go_1_23
       gotools
       jq
       curl
@@ -221,7 +221,7 @@
     
     shellHook = ''
       # Set up the Go environment
-      export GOROOT="${pkgs.go_1_22}/share/go"
+      export GOROOT="${pkgs.go_1_23}/share/go"
       export PATH="$GOROOT/bin:$PATH"
       export CGO_ENABLED=1
       export GO111MODULE=on

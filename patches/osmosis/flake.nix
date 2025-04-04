@@ -25,7 +25,7 @@
             
             nativeBuildInputs = [
               pkgs.git
-              pkgs.go_1_22
+              pkgs.go_1_23
             ];
             
             phases = [ "unpackPhase" "patchPhase" "buildPhase" "installPhase" ];
@@ -72,7 +72,7 @@
         
         devShell = pkgs.mkShell {
           buildInputs = [
-            pkgs.go_1_22
+            pkgs.go_1_23
             pkgs.git
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             # Linux specific dependencies
@@ -80,7 +80,7 @@
           ];
           
           shellHook = ''
-            export GOROOT="${pkgs.go_1_22}/share/go"
+            export GOROOT="${pkgs.go_1_23}/share/go"
             export PATH="$GOROOT/bin:$PATH"
             export CGO_ENABLED=1
             
