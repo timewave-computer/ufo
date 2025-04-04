@@ -5,7 +5,7 @@
   # Direct integration of build-osmosis-ufo script into the flake
   build-osmosis-ufo-script = pkgs.writeShellApplication {
     name = "build-osmosis-ufo";
-    runtimeInputs = [ pkgs.go_1_23 ];
+    runtimeInputs = [ pkgs.go_1_23 pkgs.git ];
     text = ''
       #!/bin/bash
       # Script to build Osmosis with UFO integration
@@ -19,12 +19,11 @@
       fi
 
       OSMOSIS_DIR="$1"
-      UFO_DIR="${builtins.toString self}"
+      # UFO_DIR="${builtins.toString self}" # This is unused
 
       # Change to the Osmosis directory
       cd "$OSMOSIS_DIR"
       echo "Building in Osmosis directory: $OSMOSIS_DIR"
-      echo "UFO directory: $UFO_DIR"
 
       # Create UFO adapter directory
       mkdir -p ufo
@@ -182,7 +181,10 @@
       # Add UFO module dependency to go.mod
       echo "Setting up Go modules..."
       echo "require github.com/timewave/ufo v0.1.0" >> go.mod
-      echo "replace github.com/timewave/ufo => $UFO_DIR" >> go.mod
+      echo "replace github.com/osmosis-labs/osmosis/v28/ufo => ./ufo" >> go.mod
+
+      # Tidy up modules
+      go mod tidy
 
       # Remove the vendor directory if it exists
       if [ -d vendor ]; then
@@ -197,7 +199,7 @@
 
       # Build with UFO binary in a separate command
       echo "Building Osmosis with UFO adapter..."
-      go build -mod=mod -o osmosisd-ufo ./cmd/osmosisd-ufo
+      GOFLAGS="-mod=mod" go build -o osmosisd-ufo ./cmd/osmosisd-ufo
 
       echo "Osmosis with UFO adapter built successfully: $(pwd)/osmosisd-ufo"
     '';
