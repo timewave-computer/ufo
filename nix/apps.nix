@@ -34,7 +34,7 @@
       mkdir -p build
       
       # Set up the Go environment
-      export GOROOT="${pkgs.go_1_22}/share/go"
+      export GOROOT="${pkgs.go_1_23}/share/go"
       export PATH="$GOROOT/bin:$PATH"
       export CGO_ENABLED=1
       export GO111MODULE=on
