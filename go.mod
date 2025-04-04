@@ -1,4 +1,4 @@
-module github.com/timewave/ufo
+module github.com/timewave-computer/ufo
 
 go 1.22.0
 

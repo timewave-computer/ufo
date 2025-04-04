@@ -7,7 +7,7 @@ index 1234567..abcdef0 100644
  	sdk "github.com/cosmos/cosmos-sdk/types"
  	"github.com/cosmos/cosmos-sdk/types/module"
 -	"github.com/cometbft/cometbft/abci/types"
-+	"github.com/timewave/ufo/src/adapter/abci/types"
++	"github.com/timewave-computer/ufo/src/adapter/abci/types"
  
  	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
  	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -16,7 +16,7 @@ index 1234567..abcdef0 100644
  	"github.com/cosmos/cosmos-sdk/x/staking"
  	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 -	"github.com/cometbft/cometbft/libs/log"
-+	"github.com/timewave/ufo/src/adapter/log"
++	"github.com/timewave-computer/ufo/src/adapter/log"
  )
  
  // Ensure OsmosisApp implements the sdk.App interface
@@ -48,8 +48,8 @@ index 9876543..0123456 100644
  	"github.com/cosmos/cosmos-sdk/x/crisis"
 -	"github.com/cometbft/cometbft/abci/server"
 -	cmtlog "github.com/cometbft/cometbft/libs/log"
-+	"github.com/timewave/ufo/src/adapter/server"
-+	ufoLog "github.com/timewave/ufo/src/adapter/log"
++	"github.com/timewave-computer/ufo/src/adapter/server"
++	ufoLog "github.com/timewave-computer/ufo/src/adapter/log"
  
  	"github.com/osmosis-labs/osmosis/v28/app"
  	osmosisAppParams "github.com/osmosis-labs/osmosis/v28/app/params"
