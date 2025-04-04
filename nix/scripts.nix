@@ -5,7 +5,7 @@
   # Direct integration of build-osmosis-ufo script into the flake
   build-osmosis-ufo-script = pkgs.writeShellApplication {
     name = "build-osmosis-ufo";
-    runtimeInputs = [ pkgs.go_1_22 ];
+    runtimeInputs = [ pkgs.go_1_23 ];
     text = ''
       #!/bin/bash
       # Script to build Osmosis with UFO integration
